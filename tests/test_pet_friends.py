@@ -50,7 +50,7 @@ def get_api_key():
     assert status == 200
     assert 'key' in pytest.key
     yield
-    # Проверяем что статус ответа = 200 и имя питомца соответствует заданному
+    # Проверяем что статус ответа в тесте = 200 и имя питомца соответствует заданному
     assert pytest.status == 200
 
 def test_get_api_key_for_valid_user(email=valid_email, password=valid_password):
