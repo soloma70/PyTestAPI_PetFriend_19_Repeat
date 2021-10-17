@@ -1,6 +1,7 @@
 from api import PetFriends
 from settings import valid_email, valid_password
 import os
+import pytest
 
 # Все наши тест-кейсы могут быть объединены в следующие группы сценариев:
 # Базовые позитивные проверки (так называемый Happy Path — «счастливый путь») — самый короткий сценарий, когда пользователь
@@ -42,6 +43,14 @@ pf = PetFriends()
 
 # Блок тестов на получение api ключа
 
+@pytest.fixture(autouse=True)
+def get_key():
+    pf = PetFriends()
+    status, key = pf.get_api_key(valid_email, valid_password)
+    assert status == 200
+    assert 'key' in key
+    return key
+
 def test_get_api_key_for_valid_user(email=valid_email, password=valid_password):
     """Позитивный тест получения API ключа для зарегистрированного пользователя. Проверяем, что
     запрос возвращает статус 200 и в результате содержится слово key"""
@@ -75,23 +84,23 @@ def test_negativ_get_api_key_for_non_valid_user(email='Gbgdgn@gsgl.com', passwor
 
 # Блок тестов на проверку списка питомцев
 
-def test_get_all_pets_with_valid_key(filter=''):
+def test_get_all_pets_with_valid_key(get_key, filter=''):
     """Позитивный тест получения не пустого списка питомцев по фильтру 'Все питомцы'. Сначала получаем API ключ.
     После поверяем, что запрос возвращает статус 200 и список питомцев не пустой (фильтр 'Все питомцы')"""
-    _, auth_key = pf.get_api_key(valid_email, valid_password)
-    status, result = pf.get_list_of_pets(auth_key, filter)
+    #_, auth_key = pf.get_api_key(valid_email, valid_password)
+    status, result = pf.get_list_of_pets(get_key, filter)
     assert status == 200
     assert len(result['pets']) > 0
 
-def test_get_my_pets_with_valid_key(filter='my_pets'):
+def test_get_my_pets_with_valid_key(get_key, filter='my_pets'):
     """Позитивный тест получения не пустого списка питомцев по фильтру 'Мои питомцы'. Сначала получаем API ключ.
     После поверяем, что запрос возвращает статус 200 и список питомцев не пустой (фильтр 'Мои питомцы')"""
-    _, auth_key = pf.get_api_key(valid_email, valid_password)
-    status, result = pf.get_list_of_pets(auth_key, filter)
+    #_, auth_key = pf.get_api_key(valid_email, valid_password)
+    status, result = pf.get_list_of_pets(get_key, filter)
     if len(result['pets']) == 0:
-        pf.post_add_new_pet(auth_key, 'Матюся', 'Британец', '9')
+        pf.post_add_new_pet(get_key, 'Матюся', 'Британец', '9')
         # Еще раз запрашиваем список моих питомцев
-        status, result = pf.get_list_of_pets(auth_key, filter)
+        status, result = pf.get_list_of_pets(get_key, filter)
     assert status == 200
     assert len(result['pets']) > 0
 
