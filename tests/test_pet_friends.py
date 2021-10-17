@@ -44,12 +44,14 @@ pf = PetFriends()
 # Блок тестов на получение api ключа
 
 @pytest.fixture(autouse=True)
-def get_key():
+def get_api_key():
     pf = PetFriends()
-    status, key = pf.get_api_key(valid_email, valid_password)
+    status, pytest.key = pf.get_api_key(valid_email, valid_password)
     assert status == 200
-    assert 'key' in key
-    return key
+    assert 'key' in pytest.key
+    yield
+    # Проверяем что статус ответа = 200 и имя питомца соответствует заданному
+    assert pytest.status == 200
 
 def test_get_api_key_for_valid_user(email=valid_email, password=valid_password):
     """Позитивный тест получения API ключа для зарегистрированного пользователя. Проверяем, что
@@ -84,25 +86,33 @@ def test_negativ_get_api_key_for_non_valid_user(email='Gbgdgn@gsgl.com', passwor
 
 # Блок тестов на проверку списка питомцев
 
-def test_get_all_pets_with_valid_key(get_key, filter=''):
+def test_get_all_pets_with_valid_key(filter=''):
     """Позитивный тест получения не пустого списка питомцев по фильтру 'Все питомцы'. Сначала получаем API ключ.
     После поверяем, что запрос возвращает статус 200 и список питомцев не пустой (фильтр 'Все питомцы')"""
     #_, auth_key = pf.get_api_key(valid_email, valid_password)
-    status, result = pf.get_list_of_pets(get_key, filter)
-    assert status == 200
+    pytest.status, result = pf.get_list_of_pets(pytest.key, filter)
     assert len(result['pets']) > 0
 
-def test_get_my_pets_with_valid_key(get_key, filter='my_pets'):
+def test_get_my_pets_with_valid_key(filter='my_pets'):
     """Позитивный тест получения не пустого списка питомцев по фильтру 'Мои питомцы'. Сначала получаем API ключ.
     После поверяем, что запрос возвращает статус 200 и список питомцев не пустой (фильтр 'Мои питомцы')"""
     #_, auth_key = pf.get_api_key(valid_email, valid_password)
-    status, result = pf.get_list_of_pets(get_key, filter)
+    pytest.status, result = pf.get_list_of_pets(pytest.key, filter)
     if len(result['pets']) == 0:
-        pf.post_add_new_pet(get_key, 'Матюся', 'Британец', '9')
+        pf.post_add_new_pet(pytest.key, 'Матюся', 'Британец', '9')
         # Еще раз запрашиваем список моих питомцев
-        status, result = pf.get_list_of_pets(get_key, filter)
-    assert status == 200
+        pytest.status, result = pf.get_list_of_pets(pytest.key, filter)
     assert len(result['pets']) > 0
+
+# Тест на получение списка питомцев с использованием параметризации
+@pytest.mark.parametrize("filter", ['', 'my_pets'], ids= ['all pets', 'my pets'])
+def test_get_all_pets_with_valid_key(filter):
+   """ Проверяем, что запрос всех питомцев возвращает не пустой список.
+   Для этого сначала получаем api-ключ и сохраняем в переменную auth_key. Далее, используя этот ключ,
+   запрашиваем список всех питомцев и проверяем, что список не пустой.
+   Доступное значение параметра filter - 'my_pets' либо '' """
+   pytest.status, result = pf.get_list_of_pets(pytest.key, filter)
+   assert len(result['pets']) > 0
 
 def test_negativ_get_all_pets_with_non_valid_key(filter=''):
     """Негативный тест получения списка питомцев по фильтру 'Все питомцы' при невалидном API ключе.
