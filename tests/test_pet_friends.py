@@ -42,7 +42,6 @@ import pytest
 pf = PetFriends()
 
 # Блок тестов на получение api ключа
-
 @pytest.fixture(autouse=True)
 def get_api_key():
     pf = PetFriends()
@@ -85,7 +84,6 @@ def test_negativ_get_api_key_for_non_valid_user(email='Gbgdgn@gsgl.com', passwor
 
 
 # Блок тестов на проверку списка питомцев
-
 def test_get_all_pets_with_valid_key(filter=''):
     """Позитивный тест получения не пустого списка питомцев по фильтру 'Все питомцы'. Сначала получаем API ключ.
     После поверяем, что запрос возвращает статус 200 и список питомцев не пустой (фильтр 'Все питомцы')"""
@@ -124,7 +122,6 @@ def test_negativ_get_all_pets_with_non_valid_key(filter=''):
 
 
 # Блок тестов на проверку добавления питомцев
-
 def test_add_new_pet_with_valid_data(name='Матюся', animal_type='британец', age='9', pet_photo='images/cat11.jpg'):
     """Позитивный тест добавления нового питомца с корректными данными"""
     # Получаем полный путь изображения питомца и сохраняем в переменную pet_photo
