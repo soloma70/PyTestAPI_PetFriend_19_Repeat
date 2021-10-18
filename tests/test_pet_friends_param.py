@@ -67,6 +67,12 @@ def test_get_all_pets_with_negative_filter(filter):
 
 
 # Блок тестов на проверку добавления питомцев с параметризацией по name, animal_type и age. Всего тестов 1053.
+def is_age_valid(age):
+   # Проверяем, что возраст - это число от 1 до 49 и целое
+   return age.isdigit() \
+          and 0 < int(age) < 50 \
+          and float(age) == int(age)
+
 @pytest.mark.parametrize("name", ['Матюся', '', generate_string(255), generate_string(1001), russian_chars()
     , russian_chars().upper(), chinese_chars(), special_chars(), '123']
     , ids=['my name', 'empty', '255 sym', '> 1000 symb', 'russian', 'RUSSIAN', 'chinese', 'specials', 'digit'])
@@ -81,15 +87,15 @@ def test_add_new_pet_simple(name, animal_type, age):
     """Тест добавления нового питомца с с различными данными"""
     # Добавляем питомца
     pytest.status, result = pf.add_new_pet_simple(pytest.key, name, animal_type, age)
-    # Сверяем полученный ответ с ожидаемым результатом
-    # if name == '' or animal_type == '':
-    #     assert pytest.status == 400
-    # else:
-    assert pytest.status == 200
-    assert result['name'] == name
-    assert result['age'] == age
-    assert result['animal_type'] == animal_type
-
+    # Сверяем полученный ответ с ожидаемым результатом.
+    # Тесты красные, так как пустые значения добавляют питомцев и код ответа 200 (условие не соблюдается)
+    if name == '' or animal_type == '' or is_age_valid():
+        assert pytest.status == 400
+    else:
+        assert pytest.status == 200
+        assert result['name'] == name
+        assert result['age'] == age
+        assert result['animal_type'] == animal_type
 
 
 def test_add_new_pet_with_valid_data(name='Матюся', animal_type='британец', age='9', pet_photo='images/cat11.jpg'):
