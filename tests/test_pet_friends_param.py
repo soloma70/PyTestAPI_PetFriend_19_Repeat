@@ -68,7 +68,8 @@ def test_get_all_pets_with_negative_filter(filter):
 
 # Блок тестов на проверку добавления питомцев с параметризацией по name, animal_type и age. Всего тестов 1053.
 def is_age_valid(age):
-   # Проверяем, что возраст - это число от 1 до 49 и целое
+   # Проверяем:
+   # что возраст - это число от 1 до 49 и целое
    return age.isdigit() \
           and 0 < int(age) < 50 \
           and float(age) == int(age)
